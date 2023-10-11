@@ -46,6 +46,45 @@ void list_add(list **head, int x)
 	*head = p;
 }
 
+void line_add(line *&que, int x)
+{
+	list *p;
+	p = new list;
+	p->element = x;
+	
+	p->next = NULL;
+	if(que->head != NULL) que->tail->next = p;
+	else que->head = p;
+	que->tail = p;
+}
+
+line* BSearch(record *&tt, int *&index, int desired, int n) {
+	int L = 0, R = n - 1, m, current;
+	line* que = new line;
+	que->head = NULL;
+	
+	while(L < R) {
+		m = (L + R) / 2;
+		current = tt[index[m]].year;
+		if(current < desired) {
+			L = m + 1;
+		} else {
+			R = m;
+		}
+	}
+	if(tt[index[R]].year == desired) {
+		while(tt[index[R]].year == desired) {
+			line_add(que, index[R]);
+			R++;
+		}
+		return que;
+	} else {
+		return NULL;
+	}
+	
+	return NULL;
+}
+
 int Split(list *&S, list *&A, list *&B)
 {
     list *k, *p;
@@ -161,11 +200,14 @@ void MergeSort(list *&S, record *&tt)
 
 int main()
 {
-	int j;
+	int j, des;
 	int page = 1;
-	int tt_index[4000];
+	int* tt_index = new int[4001];
+	tt_index[4000] = 0;
 	list* S;
 	S = NULL;
+	line* P;
+	P = NULL;
 	for(j = 0; j < 4000; j++) tt_index[j] = j;
 	char ch;
 	FILE *fp;
@@ -178,8 +220,9 @@ int main()
 		cout<<"page: "<<page<<endl;
 		for(i = page * 20 - 20; i < 20 * page; i++)
 			cout<<i+1<<".\t"<<tt[tt_index[i]].author<<"\t"<<tt[tt_index[i]].title<<"\t"<<tt[tt_index[i]].publisher<<"\t\t"<<tt[tt_index[i]].year<<"\t"<<tt[tt_index[i]].num_of_page<<endl;
-		cout<<"\n\r"<<"<"<<" prev"<<"\t"<<">"<<" next"<<"\t"<<"?"<<" own page"<<"\t"<<"@"<<" exit"<<"\t"<<"S"<<" sort"<<"\t"<<endl;
+		cout<<"\n\r"<<"<"<<" prev"<<"\t"<<">"<<" next"<<"\t"<<"?"<<" own"<<"\t"<<"@"<<" exit"<<"\t"<<"S"<<" sort"<<"\t"<<"P"<<" search"<<"\t"<<endl;
 		cin>>ch;
+		i = 0;
 		
 		switch(ch){
 			case '<':
@@ -208,6 +251,22 @@ int main()
 					tt_index[j] = S->element;
 					S = S->next;
 				}
+				break;
+				
+			case 'P':
+			case 'p':
+				cout << "Enter year:" << endl;
+				cin >> des;
+				P = BSearch(tt, tt_index, des, 4000);
+				if(P == NULL) break;
+				system("cls");
+				j = 1;
+				while(P->head != NULL) {
+					cout<<j<<".\t"<<tt[P->head->element].author<<"\t"<<tt[P->head->element].title<<"\t"<<tt[P->head->element].publisher<<"\t\t"<<tt[P->head->element].year<<"\t"<<tt[P->head->element].num_of_page<<endl;
+					P->head = P->head->next;
+					j++;
+				}
+				system("pause");
 				break;
 		}
 		
